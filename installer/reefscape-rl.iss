@@ -1,5 +1,5 @@
 #define MyAppName "Reefscape RL"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Synapse contributors"
 #define MyAppExeName "ReefscapeRL.exe"
 
@@ -18,6 +18,8 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+VersionInfoVersion=1.1.0.0
+VersionInfoProductVersion=1.1.0.0
 
 [Files]
 Source: "..\builds\ReefscapeRL\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

@@ -46,7 +46,7 @@ def main() -> int:
     parser.add_argument(
         "--installer",
         action="store_true",
-        help="Try to build a Windows Setup.exe with Inno Setup after packaging.",
+        help="Build a Windows Setup.exe with Inno Setup after packaging.",
     )
     args = parser.parse_args()
 
@@ -202,9 +202,9 @@ def make_zip(app_dir: Path) -> Path:
 def build_inno_installer() -> None:
     iscc = find_inno_compiler()
     if iscc is None:
-        print("Inno Setup was not found on PATH; skipped Setup.exe build.")
-        print("Install Inno Setup, then run: build.bat --installer")
-        return
+        raise SystemExit(
+            "Inno Setup was not found. Install Inno Setup, then rerun: python build.py --installer"
+        )
 
     run([iscc, str(REPO_ROOT / "installer" / "reefscape-rl.iss")], cwd=REPO_ROOT)
 

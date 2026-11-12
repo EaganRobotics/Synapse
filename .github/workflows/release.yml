@@ -24,6 +24,23 @@ jobs:
           python-version: "3.13"
           cache: pip
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: app/go.mod
+          cache-dependency-path: app/go.sum
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/frontend/package-lock.json
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
       - name: Build release artifacts
         shell: pwsh
         run: .\scripts\build_release.ps1
@@ -43,4 +60,4 @@ jobs:
           gh release create "${{ github.ref_name }}" dist/* `
             --repo "${{ github.repository }}" `
             --title "REEFSCAPE RL ${{ github.ref_name }}" `
-            --notes "Automated release build for ${{ github.ref_name }}."
+            --notes "Windows installer (ReefscapeRL-Setup.exe) and portable build (ReefscapeRL-portable.zip) for ${{ github.ref_name }}."

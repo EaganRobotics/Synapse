@@ -1,6 +1,7 @@
 param(
     [switch]$SkipChecks,
     [switch]$KeepDist,
+    [switch]$SkipInstaller,
     [string]$PythonExe = ""
 )
 
@@ -54,6 +55,16 @@ if (-not $SkipChecks) {
 }
 
 Invoke-Step @($PythonExe, "-m", "build")
+
+if (-not $SkipInstaller) {
+    Invoke-Step @($PythonExe, "build.py", "--clean", "--installer")
+    foreach ($relative in @("builds\ReefscapeRL-Setup.exe", "builds\ReefscapeRL-portable.zip")) {
+        if (-not (Test-Path -LiteralPath $relative)) {
+            throw "Release build did not produce $relative"
+        }
+        Copy-Item -LiteralPath $relative -Destination "dist" -Force
+    }
+}
 
 if (-not (Test-Path -LiteralPath "dist")) {
     throw "Build completed without creating dist/."
