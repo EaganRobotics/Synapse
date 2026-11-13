@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-13T17:30:00Z",
+  "title": "Design System: Reefscape RL",
+  "extensions": {
+    "colorMeta": {
+      "aero-mid": { "role": "primary", "displayName": "Aero mid", "canonical": "#2f72c4", "tonalRamp": ["#0b2f66", "#1b4b8a", "#1f58a8", "#2f72c4", "#4e8dd4", "#6ea3dc", "#9dbfe8", "#d9eaff"] },
+      "canvas": { "role": "neutral", "displayName": "Canvas", "canonical": "#f6f9fd", "tonalRamp": ["#1a2638", "#3b4a62", "#4e5d75", "#7a8ea9", "#dce5f1", "#e9f0f9", "#f4f8fd", "#f6f9fd"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#1a2638", "tonalRamp": ["#0b1220", "#1a2638", "#3b4a62", "#4e5d75", "#7a8ea9", "#c6d4e8", "#e9f0f9", "#ffffff"] },
+      "good": { "role": "success", "displayName": "Ready", "canonical": "#2f8a3b", "tonalRamp": ["#1b5425", "#2f8a3b", "#5fae2a", "#8fd18a", "#c9e8c4", "#e6f3e4", "#f3faf2", "#ffffff"] },
+      "warn": { "role": "warning", "displayName": "Running", "canonical": "#c57600", "tonalRamp": ["#7a4600", "#c57600", "#e39017", "#f0b429", "#f6d48a", "#fbefd4", "#fdf6e8", "#ffffff"] },
+      "bad": { "role": "danger", "displayName": "Stop", "canonical": "#b02a30", "tonalRamp": ["#6d1216", "#b02a30", "#d45a60", "#e89aa0", "#f3c4c7", "#f6dcde", "#fbf0f1", "#ffffff"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "The product name in the glossy header." },
+      "title": { "displayName": "Plate title", "purpose": "Uppercase title bars." },
+      "body": { "displayName": "Body", "purpose": "Forms, buttons, and phase names." },
+      "label": { "displayName": "Label", "purpose": "Status, step, and reward captions." },
+      "mono": { "displayName": "Mono", "purpose": "Logs and model paths." }
+    },
+    "shadows": [
+      { "name": "header-inset", "value": "inset 0 1px 0 rgba(255, 255, 255, 0.65), inset 0 -1px 0 rgba(0, 0, 0, 0.35)", "purpose": "Gloss on the header only." },
+      { "name": "plate", "value": "inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(16, 36, 72, 0.1)", "purpose": "Every plate at rest." },
+      { "name": "button", "value": "inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 1px rgba(0, 0, 0, 0.12)", "purpose": "Command buttons." }
+    ],
+    "motion": [
+      { "name": "flap", "value": "220ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Header status, step, and reward when the value changes." }
+    ],
+    "breakpoints": [
+      { "name": "stack", "value": "980px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Start Training and Run in Field.",
+      "html": "<button class=\"ds-btn-primary\">Start Training</button>",
+      "css": ".ds-btn-primary{color:#fff;border:1px solid #0b2f66;border-radius:6px;padding:6px 18px;font:700 12px Tahoma,Verdana,sans-serif;text-shadow:0 1px 0 rgba(0,0,0,.35);background:linear-gradient(180deg,#2f72b8,#0b346d);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 1px 2px rgba(0,0,0,.22)}.ds-btn-primary:hover{background:linear-gradient(180deg,#4a93df,#164692)}.ds-btn-primary:focus-visible{outline:2px solid #2f78ce;outline-offset:2px}"
+    },
+    {
+      "name": "Command Button",
+      "kind": "button",
+      "refersTo": "button-command",
+      "description": "Setup, Doctor, folder, and smoke test.",
+      "html": "<button class=\"ds-btn-command\">Setup + Deps</button>",
+      "css": ".ds-btn-command{color:#1a2638;border:1px solid #4b6185;border-radius:6px;padding:5px 12px;font:700 12px Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#fff 0%,#f0f5fd 48%,#c3d2e8 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 1px 1px rgba(0,0,0,.12)}.ds-btn-command:hover{border-color:#1f58a8}.ds-btn-command:focus-visible{outline:2px solid #2f78ce;outline-offset:2px}"
+    },
+    {
+      "name": "Stop Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Stops the running job.",
+      "html": "<button class=\"ds-btn-danger\">Stop</button>",
+      "css": ".ds-btn-danger{color:#fff;border:1px solid #6b1216;border-radius:6px;padding:5px 12px;font:700 12px Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#d45a60,#6d1216);text-shadow:0 1px 0 rgba(0,0,0,.35)}.ds-btn-danger:focus-visible{outline:2px solid #2f78ce;outline-offset:2px}"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Launch fields and the CLI command.",
+      "html": "<label class=\"ds-field\"><span>Timesteps</span><input value=\"100000\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:3px;color:#3b4a62;font:700 12px Tahoma,Verdana,sans-serif}.ds-field input{padding:4px 6px;border:1px solid #93a4bd;border-radius:3px;background:#fff;color:#1a2638;font:12px Tahoma,Verdana,sans-serif;box-shadow:inset 0 1px 2px rgba(0,0,0,.18)}.ds-field input:focus-visible{outline:2px solid #2f78ce;outline-offset:2px}"
+    },
+    {
+      "name": "Tabs",
+      "kind": "nav",
+      "refersTo": "tab-current",
+      "description": "Train, Field, Models, and Logs.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab is-current\">Train</button><button class=\"ds-tab\">Field</button></nav>",
+      "css": ".ds-tabs{display:flex;align-items:flex-end;gap:3px;padding:6px 8px 0;background:linear-gradient(180deg,#d9e2f0,#bccadf)}.ds-tab{border:1px solid #4b6185;border-bottom:0;border-radius:6px 6px 0 0;padding:7px 14px;background:linear-gradient(180deg,#f6faff,#b1c3dd);color:#0b2f66;font:700 12px Tahoma,Verdana,sans-serif}.ds-tab.is-current{background:#fff;padding-bottom:9px}"
+    },
+    {
+      "name": "Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "A titled work area.",
+      "html": "<section class=\"ds-plate\"><h2>Launch</h2><div>100000 timesteps</div></section>",
+      "css": ".ds-plate{background:linear-gradient(180deg,#fff,#f4f8fd);border:1px solid #7a8ea9;border-radius:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(16,36,72,.1);color:#1a2638;font:12px Tahoma,Verdana,sans-serif}.ds-plate h2{margin:0;padding:6px 10px;color:#fff;font:700 11px Tahoma,Verdana,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(180deg,#3f6f9f,#1d4f87)}.ds-plate div{padding:10px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The shared field grid",
+    "overview": "Reefscape RL is a working desktop trainer wearing Neuron's 2009 chrome: a glossy blue header, a lifted tab, steel title bars, and cream plates. The reward chart and the field use the same cream ground and the same soft blue grid. The active scoring face is the one mark that burns.",
+    "keyCharacteristics": [
+      "Glossy blue header with the name, status, step, and reward",
+      "Lifted tabs for Train, Field, Models, and Logs",
+      "Steel title bars on every plate",
+      "Cream canvases ruled with one blue grid",
+      "Aero buttons: white for commands, blue for the main action, red for Stop"
+    ],
+    "rules": [
+      { "name": "The One Grid Rule", "body": "The reward chart and the field share canvas #f6f9fd and grid #dce5f1. Do not give the chart a different ground from the field.", "section": "colors" },
+      { "name": "The No Glow Rule", "body": "Do not put a colored halo on robots, chart lines, or status dots. The active scoring face is a larger blue dot with a soft ring, not a neon bloom.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Train, Field, Models, Logs, Setup + Deps, Doctor, Project Folder, Host AdvantageScope, and Stop reachable.",
+      "Do use Reefscape RL as the name on the interface.",
+      "Do show a missing dependency in an amber notice that names Setup + Deps.",
+      "Do use Consolas for logs and model paths."
+    ],
+    "donts": [
+      "Don't add a dark metric hero, a neon field, or a second accent color for decoration.",
+      "Don't draw the chart and the field on different grounds.",
+      "Don't hide Stop while a job is running, and don't enable Setup + Deps, Doctor, or Host AdvantageScope while one is."
+    ]
+  }
+}

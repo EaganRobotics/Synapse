@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shared field grid</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1440px; height: 900px; overflow: hidden; }
+  body {
+    font: 14px/1.4 Tahoma, Verdana, sans-serif;
+    color: #1a2638;
+    background: linear-gradient(180deg, #e9f0f9 0, #c6d4e8 420px, #a8bbd4 100%);
+  }
+  .site { height: 900px; display: flex; flex-direction: column; }
+  header {
+    display: flex; align-items: center; gap: 14px;
+    height: 76px; padding: 0 18px; color: #f1f6ff;
+    background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.08) 48%, rgba(0,0,0,.18)),
+      linear-gradient(180deg, #4e8dd4, #2f72c4 46%, #1b4b8a);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+  }
+  .mark { width: 48px; height: 48px; border-radius: 6px; background: radial-gradient(circle at 30% 30%, #d9eaff, #1b4b8a); border: 1px solid #0b2f66; }
+  h1 { margin: 0; font-size: 28px; letter-spacing: 0; }
+  header p { margin: 2px 0 0; font-size: 13px; color: #d6e6ff; }
+  .chip { margin-left: auto; background: #e6f3e4; color: #1b5425; font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 12px; border: 1px solid #2f8a3b; }
+  nav { display: flex; gap: 4px; align-items: flex-end; padding: 8px 8px 0; background: linear-gradient(180deg, #d9e2f0, #bccadf); }
+  nav span { font-size: 14px; font-weight: 700; padding: 8px 16px; border: 1px solid #4b6185; border-bottom: 0; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #f6faff, #b1c3dd); color: #0a2a5f; }
+  nav .on { background: #fff; position: relative; top: 1px; padding-bottom: 10px; }
+  main { flex: 1; background: #fff; border: 1px solid #4b6185; border-top: 0; padding: 12px; display: grid; grid-template-columns: 1.15fr .85fr; grid-template-rows: auto 1fr 168px; gap: 10px; }
+  .warn { grid-column: 1 / -1; background: #fbefd4; color: #7a4600; border: 1px solid #c57600; padding: 8px 12px; font-size: 14px; font-weight: 700; }
+  .plate { border: 1px solid #7a8ea9; border-radius: 6px; background: linear-gradient(#fff, #f4f8fd); overflow: hidden; display: flex; flex-direction: column; }
+  .plate h2 { margin: 0; padding: 7px 12px; color: #fff; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(0,0,0,.18)), linear-gradient(#3f6f9f, #1d4f87); }
+  .body { padding: 10px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: #3b4a62; font-weight: 700; }
+  label b { height: 24px; border: 1px solid #93a4bd; background: #fff; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,.15); }
+  .wide { grid-column: 1 / -1; }
+  .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  button { font: 700 13px Tahoma, sans-serif; border-radius: 6px; border: 1px solid #4b6185; padding: 7px 14px; background: linear-gradient(#fff, #c3d2e8); }
+  button.go { color: #fff; border-color: #0b2f66; background: linear-gradient(#2f72b8, #0b346d); }
+  .phase { display: grid; grid-template-columns: 10px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #d6dfec; font-size: 13px; }
+  .phase i { width: 10px; height: 10px; border-radius: 50%; background: #93a4bd; display: block; }
+  .phase.on i { background: #2f8a3b; }
+  .bar { height: 8px; background: #e9eef7; border: 1px solid #93a4bd; margin-top: 8px; }
+  .bar span { display: block; width: 62%; height: 100%; background: linear-gradient(90deg, #2f72c4, #6ea3dc); }
+  .canvases { grid-column: 1 / -1; display: grid; grid-template-columns: 1.4fr .8fr; gap: 10px; }
+  .canvas { background: #f6f9fd; background-image: linear-gradient(#dce5f1 1px, transparent 1px), linear-gradient(90deg, #dce5f1 1px, transparent 1px); background-size: 28px 28px; border-top: 1px solid #d6dfec; flex: 1; position: relative; }
+  .line { position: absolute; left: 24px; right: 40px; top: 46px; height: 3px; background: #1f58a8; transform: rotate(-8deg); }
+  .dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #1f58a8; right: 48px; top: 28px; box-shadow: 0 0 0 4px rgba(31,88,168,.25); }
+  .reef { position: absolute; left: 46%; top: 38%; width: 54px; height: 54px; background: rgba(31,88,168,.15); border: 2px solid #1f58a8; transform: rotate(30deg); }
+  .face { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #9dbfe8; }
+  .face.hot { background: #1f58a8; box-shadow: 0 0 0 5px rgba(31,88,168,.35); width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+<div class="site">
+  <header>
+    <div class="mark"></div>
+    <div><h1>Reefscape RL</h1><p>PPO training for a REEFSCAPE field</p></div>
+    <div class="chip">Running · Train PPO</div>
+  </header>
+  <nav><span class="on">Train</span><span>Field</span><span>Models</span><span>Logs</span></nav>
+  <main>
+    <div class="warn">Training deps missing: torch. Run Setup + Deps and wait for it to finish.</div>
+    <section class="plate">
+      <h2>Launch</h2>
+      <div class="body">
+        <label>Timesteps<b></b></label>
+        <label>Device<b></b></label>
+        <label>Robot<b></b></label>
+        <label>Preview<b></b></label>
+        <label class="wide">Model out<b></b></label>
+        <div class="actions"><button class="go">Start Training</button><button>Smoke Test</button><button>Stop</button></div>
+      </div>
+    </section>
+    <section class="plate">
+      <h2>Current · PPO training</h2>
+      <div class="body" style="grid-template-columns:1fr">
+        <div class="phase"><i></i><span>Environment</span><em>CUDA</em></div>
+        <div class="phase"><i></i><span>Heuristic training</span><em>epoch 3/8</em></div>
+        <div class="phase on"><i></i><span>PPO training</span><em>step 18,420</em></div>
+        <div class="bar"><span></span></div>
+        <div class="phase"><i></i><span>Checkpoint</span><em>not started</em></div>
+      </div>
+    </section>
+    <div class="canvases">
+      <section class="plate"><h2>Reward</h2><div class="canvas"><div class="line"></div><div class="dot"></div></div></section>
+      <section class="plate"><h2>Field</h2><div class="canvas"><div class="reef"></div><i class="face" style="left:30%;top:55%"></i><i class="face hot" style="left:58%;top:32%"></i><i class="face" style="left:70%;top:60%"></i></div></section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

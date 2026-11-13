@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Manual figure</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1440px; height: 900px; overflow: hidden; }
+  body { background: #efe6d4; color: #1c1a16; font: 16px/1.45 Georgia, "Times New Roman", serif; }
+  .page { height: 900px; display: grid; grid-template-columns: 220px 1fr; }
+  aside { background: #f7f1e4; border-right: 1px solid #1c1a16; padding: 28px 18px; }
+  aside strong { display: block; font-family: Tahoma, sans-serif; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 18px; }
+  aside a { display: block; padding: 8px 0; border-bottom: 1px solid #d9d0be; color: #1c1a16; text-decoration: none; font-family: Tahoma, sans-serif; font-size: 15px; }
+  aside a.on { font-weight: 700; }
+  main { padding: 28px 36px 24px; display: grid; grid-template-rows: auto 1fr auto auto; gap: 12px; }
+  h1 { margin: 0; font-size: 42px; font-weight: 500; }
+  .fig { border: 1px solid #1c1a16; background: #fbf7ee; position: relative; min-height: 0; }
+  .fig::before { content: ""; position: absolute; inset: 18px; border: 1px solid #1f4e89; background-image: linear-gradient(rgba(31,78,137,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(31,78,137,.18) 1px, transparent 1px); background-size: 36px 36px; }
+  .hex { position: absolute; left: 46%; top: 38%; width: 90px; height: 78px; background: rgba(31,78,137,.12); border: 2px solid #1f4e89; }
+  .bot { position: absolute; width: 28px; height: 22px; background: #1f4e89; }
+  figcaption { font-size: 18px; }
+  figcaption b { font-family: Tahoma, sans-serif; font-size: 13px; letter-spacing: .12em; }
+  .notes { display: grid; grid-template-columns: 1.4fr .8fr; gap: 18px; font-family: Tahoma, sans-serif; font-size: 14px; }
+  .notes div { border-top: 1px solid #1c1a16; padding-top: 8px; }
+  button { font: 700 14px Tahoma, sans-serif; background: #1f4e89; color: #fbf7ee; border: 0; padding: 8px 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside>
+    <strong>Reefscape RL</strong>
+    <a class="on">Train</a><a>Field</a><a>Models</a><a>Logs</a>
+    <p style="margin-top:24px">Setup + Deps<br>Doctor<br>Stop</p>
+  </aside>
+  <main>
+    <h1>Fig. 3 — Blue alliance cycle</h1>
+    <div class="fig">
+      <div class="hex"></div>
+      <div class="bot" style="left:22%;top:48%"></div>
+      <div class="bot" style="left:61%;top:30%;background:#8a3b2a"></div>
+    </div>
+    <figcaption><b>FIG. 3</b> &nbsp; Live field. Step 18,420. Coral 4/12. 96.4s remaining. Reward 1.284.</figcaption>
+    <div class="notes">
+      <div><b>Launch.</b> 100,000 timesteps · cuda · 8 envs · models/reefscape_ppo. <button>Start Training</button></div>
+      <div><b>Note.</b> torch is missing. Run Setup + Deps before the next session.</div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

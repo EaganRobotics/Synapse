@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Category standard</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: #f8fafc; color: #0f172a; font: 16px/1.4 "Segoe UI", sans-serif; }
+  .app { display: grid; grid-template-columns: 240px 1fr; height: 900px; }
+  aside { background: #fff; border-right: 1px solid #e2e8f0; padding: 24px 16px; }
+  aside b { display: block; font-size: 18px; margin-bottom: 20px; }
+  aside button { display: block; width: 100%; text-align: left; background: transparent; border: 0; padding: 10px 12px; font: 600 15px "Segoe UI", sans-serif; color: #334155; border-radius: 8px; }
+  aside button.on { background: #eff6ff; color: #1d4ed8; }
+  main { padding: 28px 32px; }
+  h1 { margin: 0 0 6px; font-size: 28px; }
+  .sub { color: #64748b; margin: 0 0 18px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
+  .stat span { color: #64748b; font-size: 13px; }
+  .stat strong { display: block; font-size: 28px; margin-top: 4px; }
+  .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+  .row { display: flex; gap: 12px; }
+  label { flex: 1; font-size: 13px; color: #475569; }
+  label i { display: block; height: 36px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
+  .go { margin-top: 14px; background: #2563eb; color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font: 700 15px "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <b>Reefscape RL</b>
+    <button class="on">Train</button>
+    <button>Field</button>
+    <button>Models</button>
+    <button>Logs</button>
+  </aside>
+  <main>
+    <h1>Train</h1>
+    <p class="sub">Running · step 18,420 · torch still missing</p>
+    <div class="stats">
+      <div class="stat"><span>Step</span><strong>18,420</strong></div>
+      <div class="stat"><span>Reward</span><strong>1.284</strong></div>
+      <div class="stat"><span>FPS</span><strong>214</strong></div>
+    </div>
+    <div class="panel">
+      <div class="row">
+        <label>Timesteps<i></i></label>
+        <label>Device<i></i></label>
+        <label>Parallel envs<i></i></label>
+        <label>Model out<i></i></label>
+      </div>
+      <button class="go">Start Training</button>
+    </div>
+  </main>
+</div>
+</body>
+</html>

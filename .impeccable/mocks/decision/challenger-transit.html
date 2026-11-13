@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phase line</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: #0c1c3a; color: #f4f7fb; font: 16px Tahoma, sans-serif; }
+  header { padding: 22px 28px 0; display: flex; align-items: baseline; gap: 16px; }
+  h1 { margin: 0; font-size: 34px; }
+  header span { color: #9db0c8; }
+  .line { margin: 28px; height: 220px; position: relative; }
+  .rail { position: absolute; left: 40px; right: 40px; top: 78px; height: 10px; background: #f4f7fb; }
+  .stops { display: flex; justify-content: space-between; position: relative; padding: 48px 20px 0; }
+  .stop { width: 160px; text-align: center; }
+  .stop i { display: block; width: 28px; height: 28px; margin: 0 auto 12px; border-radius: 50%; background: #f4f7fb; border: 4px solid #0c1c3a; box-shadow: 0 0 0 3px #f4f7fb; }
+  .stop.on i { background: #e23b2f; box-shadow: 0 0 0 3px #e23b2f, 0 0 0 8px rgba(226,59,47,.35); }
+  .stop b { display: block; font-size: 18px; }
+  .stop em { color: #9db0c8; font-style: normal; font-size: 13px; }
+  .work { margin: 0 28px; background: #f4f7fb; color: #0c1c3a; min-height: 460px; display: grid; grid-template-columns: 1fr 1fr; }
+  .work section { padding: 22px 24px; }
+  .work section + section { border-left: 1px solid #0c1c3a; }
+  h2 { margin: 0 0 12px; font-size: 22px; }
+  p { margin: 0 0 8px; }
+  button { margin-top: 16px; font: 700 16px Tahoma, sans-serif; background: #e23b2f; color: #fff; border: 0; padding: 10px 16px; }
+</style>
+</head>
+<body>
+<header><h1>Reefscape RL</h1><span>Train is the lit station</span></header>
+<div class="line">
+  <div class="rail"></div>
+  <div class="stops">
+    <div class="stop"><i></i><b>Environment</b><em>CUDA ready</em></div>
+    <div class="stop"><i></i><b>Heuristic</b><em>epoch 8/8</em></div>
+    <div class="stop on"><i></i><b>PPO</b><em>step 18,420</em></div>
+    <div class="stop"><i></i><b>Field</b><em>desktop</em></div>
+    <div class="stop"><i></i><b>Checkpoint</b><em>waiting</em></div>
+  </div>
+</div>
+<div class="work">
+  <section>
+    <h2>Launch</h2>
+    <p>Timesteps 100,000</p>
+    <p>Device cuda</p>
+    <p>Envs 8</p>
+    <p>Model models/reefscape_ppo</p>
+    <button>Start Training</button>
+  </section>
+  <section>
+    <h2>This station</h2>
+    <p>Reward 1.284 · 214 fps</p>
+    <p>Coral 4/12 on the blue reef.</p>
+    <p>torch is still missing. Setup + Deps is the transfer.</p>
+  </section>
+</div>
+</body>
+</html>
