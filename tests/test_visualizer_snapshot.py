@@ -31,6 +31,7 @@ class VisualizerSnapshotTests(unittest.TestCase):
         self.assertIn("distanceM", snapshot["objective"])
         self.assertIsInstance(snapshot["objective"]["goalIndex"], int)
         self.assertIsInstance(snapshot["objective"]["sourceIndex"], int)
+        self.assertEqual(snapshot["match"]["scoredPieces"], [])
 
 
 if __name__ == "__main__":

@@ -60,6 +60,8 @@ class ReefscapeEnvTests(unittest.TestCase):
         self.assertFalse(info["has_coral"])
         self.assertEqual(info["scored_coral"], 1)
         self.assertEqual(info["event_code"], 2)
+        self.assertEqual(len(env.state.scored_placements), 1)
+        self.assertEqual(env.state.scored_placements[0][1], "L4")
 
     def test_policy_can_choose_lower_scoring_level(self) -> None:
         env = ReefscapeEnv(ReefscapeEnvConfig(randomize_start=False))

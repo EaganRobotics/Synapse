@@ -160,6 +160,7 @@ class ReefscapeState:
     omega_radps: float
     has_coral: bool
     scored_coral: int
+    scored_placements: list[tuple[int, str]]
     target_level: str
     total_reward: float
     current_source_index: int
@@ -220,6 +221,7 @@ class ReefscapeEnv:
             omega_radps=0.0,
             has_coral=False,
             scored_coral=0,
+            scored_placements=[],
             target_level=self.config.target_level,
             total_reward=0.0,
             current_source_index=source_index,
@@ -310,11 +312,12 @@ class ReefscapeEnv:
             event_code = 4
             mechanism_active = True
             if state.score_progress_s >= self._score_duration_s():
+                scored_level = state.target_level
+                state.scored_placements.append((state.current_goal_index, scored_level))
                 state.has_coral = False
                 state.score_progress_s = 0.0
                 state.scored_coral += 1
-                scored_level = state.target_level
-                scored_points = SCORING_POINTS_TELEOP[state.target_level]
+                scored_points = SCORING_POINTS_TELEOP[scored_level]
                 reward += float(scored_points)
                 event_code = 2
                 state.current_source_index = self._nearest_source_index(state.pose)

@@ -60,6 +60,15 @@ def build_visualizer_snapshot(
             "timeRemainingS": time_remaining,
             "durationS": env.config.episode_duration_s,
             "scoredCoral": state.scored_coral,
+            "scoredPieces": [
+                {
+                    "goalIndex": int(index),
+                    "level": level,
+                    "x": float(env.goal_poses[index].x),
+                    "y": float(env.goal_poses[index].y),
+                }
+                for index, level in state.scored_placements
+            ],
             "maxCoral": env.config.max_coral_scored,
             "targetLevel": state.target_level,
             "targetPoints": SCORING_POINTS_TELEOP[state.target_level],

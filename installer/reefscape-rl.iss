@@ -1,5 +1,5 @@
 #define MyAppName "Reefscape RL"
-#define MyAppVersion "1.3.1"
+#define MyAppVersion "1.3.2"
 #define MyAppPublisher "Synapse contributors"
 #define MyAppExeName "ReefscapeRL.exe"
 
@@ -20,8 +20,8 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-VersionInfoVersion=1.3.1.0
-VersionInfoProductVersion=1.3.1.0
+VersionInfoVersion=1.3.2.0
+VersionInfoProductVersion=1.3.2.0
 
 [Dirs]
 Name: "{app}"; Permissions: users-modify

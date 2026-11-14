@@ -1,4 +1,4 @@
-import fieldSource from "./reefscape-field.json";
+import fieldSource from "./reefscape-field.json" with { type: "json" };
 
 const ROBOT_FOOTPRINT_M = 0.76;
 const OBSTACLE_COLORS = {
@@ -52,13 +52,14 @@ function indexReef(source) {
       const key = `${slot.alliance}:${pipe[1]}:p${pipe[2]}`;
       let peg = pegs.get(key);
       if (!peg) {
-        peg = { alliance: slot.alliance, x: slot.x, y: slot.y, normal: slot.normal || 0 };
+        peg = { key, alliance: slot.alliance, x: slot.x, y: slot.y, normal: slot.normal || 0 };
         pegs.set(key, peg);
       }
       targets.set(`${slot.alliance}:${slot.id}`, peg);
     } else if (trough) {
       const key = `${slot.alliance}:${trough[1]}`;
       const faceTrough = {
+        key,
         alliance: slot.alliance,
         x: slot.x,
         y: slot.y,
@@ -71,7 +72,55 @@ function indexReef(source) {
   next.reefPegs = [...pegs.values()];
   next.reefTroughs = [...troughs.values()];
   next.reefTargetById = targets;
+  const goals = assignGoalBranches(next.scoring_locations || []);
+  next.goalPegKeys = goals.pegs;
+  next.goalTroughKeys = goals.troughs;
   return next;
+}
+
+function assignGoalBranches(slots) {
+  const branches = slots.filter((slot) => slot.alliance === "blue" && slot.level === "L4");
+  const troughSlots = slots.filter((slot) => slot.alliance === "blue" && slot.level === "L1");
+  if (!branches.length) return { pegs: [], troughs: [] };
+  const cx = branches.reduce((sum, slot) => sum + slot.x, 0) / branches.length;
+  const cy = branches.reduce((sum, slot) => sum + slot.y, 0) / branches.length;
+  const radius = 1.6;
+  const used = new Set();
+  const pegs = [];
+  const troughs = [];
+  for (let index = 0; index < 12; index += 1) {
+    const angle = (2 * Math.PI * index) / 12;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    let best = null;
+    let bestD = Infinity;
+    for (const slot of branches) {
+      if (used.has(slot.id)) continue;
+      const distance = (slot.x - x) ** 2 + (slot.y - y) ** 2;
+      if (distance < bestD) {
+        bestD = distance;
+        best = slot;
+      }
+    }
+    if (!best) {
+      pegs.push(null);
+    } else {
+      used.add(best.id);
+      const pipe = /^(face\d+)_p(\d+)_l[234]$/i.exec(best.id);
+      pegs.push(pipe ? `blue:${pipe[1]}:p${pipe[2]}` : null);
+    }
+    let trough = null;
+    let troughD = Infinity;
+    for (const slot of troughSlots) {
+      const distance = (slot.x - x) ** 2 + (slot.y - y) ** 2;
+      if (distance < troughD) {
+        troughD = distance;
+        trough = slot;
+      }
+    }
+    troughs.push(trough ? `blue:${String(trough.id).replace(/_trough$/i, "")}` : null);
+  }
+  return { pegs, troughs };
 }
 
 function project(bounds, width, height) {
@@ -206,7 +255,23 @@ function drawSegment(ctx, x, y, normal, level, filled, active) {
   ctx.restore();
 }
 
-function drawReefPegs(ctx, projection, active) {
+function scoredMarks(snap) {
+  const pegs = new Set();
+  const troughs = new Set();
+  for (const piece of snap?.match?.scoredPieces || []) {
+    const index = piece.goalIndex;
+    if (piece.level === "L1") {
+      const key = field.goalTroughKeys?.[index];
+      if (key) troughs.add(key);
+    } else if (PEG_COLORS[piece.level]) {
+      const key = field.goalPegKeys?.[index];
+      if (key) pegs.add(`${key}:${piece.level}`);
+    }
+  }
+  return { pegs, troughs };
+}
+
+function drawReefPegs(ctx, projection, active, scored) {
   const activeTarget = active?.alliance && active?.target
     ? field.reefTargetById.get(`${active.alliance}:${active.target}`)
     : null;
@@ -222,18 +287,19 @@ function drawReefPegs(ctx, projection, active) {
         py + outwardY * distance,
         peg.normal,
         level,
-        false,
+        scored.pegs.has(`${peg.key}:${level}`),
         activeTarget === peg && active.level === level
       );
     });
   }
   for (const trough of field.reefTroughs || []) {
+    const filled = scored.troughs.has(trough.key);
     const [px, py] = projection.toPx(trough.x, trough.y);
     ctx.save();
     ctx.translate(px, py);
     ctx.rotate(-trough.normal);
-    ctx.fillStyle = CANVAS_FILL;
-    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = filled ? PEG_COLORS.L1.fill : CANVAS_FILL;
+    ctx.globalAlpha = filled ? 1 : 0.7;
     ctx.fillRect(-13, -WIDTH_PX / 2, 26, WIDTH_PX);
     ctx.globalAlpha = 1;
     ctx.strokeStyle = activeTarget === trough ? "#f59e0b" : PEG_COLORS.L1.stroke;
@@ -293,6 +359,13 @@ function robotsFrom(snap) {
     });
   }
   return robots;
+}
+
+export function goalBranchAssignment() {
+  return {
+    pegs: field.goalPegKeys,
+    troughs: field.goalTroughKeys
+  };
 }
 
 export function drawNeuronField(ctx, width, height, snap) {
@@ -379,7 +452,7 @@ export function drawNeuronField(ctx, width, height, snap) {
 
   const active = activeScore(snap);
   for (const robot of robotsFrom(snap)) drawRobot(ctx, projection, robot);
-  drawReefPegs(ctx, projection, active);
+  drawReefPegs(ctx, projection, active, scoredMarks(snap));
 
   const match = snap?.match || {};
   const timeLeft = Number(match.timeRemainingS);
