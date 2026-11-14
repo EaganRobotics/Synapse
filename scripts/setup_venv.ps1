@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$PSNativeCommandUseErrorActionPreference = $false
 
 function Show-SetupProgress {
     param(
@@ -132,16 +133,27 @@ function Invoke-Python {
     )
 
     if (Test-Path -LiteralPath $Command) {
-        & $Command @Arguments
+        $output = & $Command @Arguments 2>&1
     }
     else {
         $parts = $Command -split " "
-        & $parts[0] @($parts | Select-Object -Skip 1) @Arguments
+        $output = & $parts[0] @($parts | Select-Object -Skip 1) @Arguments 2>&1
     }
     if ($LASTEXITCODE -ne 0) {
-        throw "Python command failed with exit code ${LASTEXITCODE}: $Command $($Arguments -join ' ')"
+        $detail = (($output | Out-String).Trim())
+        throw "Python command failed with exit code ${LASTEXITCODE}: $Command $($Arguments -join ' ')`n$detail"
+    }
+    if ($output) {
+        $output | ForEach-Object { Write-Host $_ }
     }
 }
+
+. (Join-Path $PSScriptRoot "reefscape_paths.ps1")
+
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+Set-Location $repoRoot
+$VenvPath = Resolve-ReefscapeVenvPath -VenvPath $VenvPath -RepoRoot $repoRoot
+New-Item -ItemType Directory -Force -Path (Split-Path -Parent $VenvPath) | Out-Null
 
 $totalSteps = if ($FastAppInstall) { 3 } elseif ($SkipRequirements) { 4 } else { 5 }
 

@@ -3,6 +3,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$PSNativeCommandUseErrorActionPreference = $false
+
+. (Join-Path $PSScriptRoot "reefscape_paths.ps1")
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$VenvPath = Resolve-ReefscapeVenvPath -VenvPath $VenvPath -RepoRoot $repoRoot
+$requirements = Join-Path $repoRoot "requirements.txt"
 
 function Show-DependencyProgress {
     param(
@@ -32,7 +38,7 @@ if ($LASTEXITCODE -ne 0) {
 
 Show-DependencyProgress "Installing CUDA/training requirements" 3
 Write-Host "Installing CUDA/training requirements. This can take a while."
-& $venvPython -m pip install -r requirements.txt
+& $venvPython -m pip install -r $requirements
 if ($LASTEXITCODE -ne 0) {
     throw "requirements install failed with exit code $LASTEXITCODE."
 }

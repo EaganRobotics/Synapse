@@ -33,6 +33,7 @@ type App struct {
 	ctx context.Context
 
 	repoRoot string
+	workDir  string
 	python   string
 	pyErr    error
 
@@ -108,14 +109,19 @@ func NewApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	python, pyErr := findPython(repoRoot)
+	workDir := resolveWorkspace(repoRoot)
+	python, pyErr := findPython(repoRoot, workDir)
 	app := &App{
 		repoRoot: repoRoot,
+		workDir:  workDir,
 		python:   python,
 		pyErr:    pyErr,
 	}
 	app.appendLog("Reefscape RL React desktop app started.")
 	app.appendLog("Repo: " + repoRoot)
+	if workDir != repoRoot {
+		app.appendLog("Data: " + workDir)
+	}
 	if pyErr != nil {
 		app.appendLog("Python: " + pyErr.Error())
 	} else {
@@ -151,7 +157,7 @@ func (a *App) GetState() StateResponse {
 		LastCode:        lastCode,
 		Metrics:         a.metricsCached(),
 		Artifacts:       a.artifactsCached(),
-		Snapshot:        loadSnapshotMap(filepath.Join(a.repoRoot, stateFile)),
+		Snapshot:        loadSnapshotMap(a.dataFile(stateFile)),
 	}
 	if a.pyErr != nil {
 		response.PythonError = a.pyErr.Error()
@@ -170,7 +176,7 @@ func (a *App) GetLiveState() LiveStateResponse {
 		Running:  running,
 		Current:  current,
 		LastCode: lastCode,
-		Snapshot: loadSnapshotMap(filepath.Join(a.repoRoot, stateFile)),
+		Snapshot: loadSnapshotMap(a.dataFile(stateFile)),
 	}
 }
 
@@ -179,7 +185,7 @@ func (a *App) RunAction(id string) error {
 	case "setup_deps":
 		return a.runManagedSequence(
 			"Setup + Install Training Dependencies",
-			[][]string{setupVenvArgs(a.repoRoot), installTrainingDepsArgs(a.repoRoot)},
+			[][]string{setupVenvArgs(a.repoRoot, a.workDir), installTrainingDepsArgs(a.repoRoot, a.workDir)},
 		)
 	case "doctor":
 		return a.runPython("Run Doctor", "-m", "reefscape_rl.doctor")
@@ -213,11 +219,11 @@ func (a *App) StartSmokeRun() error {
 		return err
 	}
 	args := []string{
-		"scripts/train_ppo.py", "--timesteps", "256", "--model-out", "models/studio_smoke",
+		"scripts/train_ppo.py", "--timesteps", "256", "--model-out", a.dataFile("models/studio_smoke"),
 		"--device", "auto", "--robot-profile", "sim", "--n-envs", "2", "--n-steps", "64",
 		"--batch-size", "128", "--checkpoint-every-steps", "0", "--skip-heuristic-pretrain",
-		"--visualization-backend", "custom-ui", "--custom-ui-state", stateFile,
-		"--metrics-out", "logs/studio/smoke_metrics.jsonl", "--metrics-every-steps", "64",
+		"--visualization-backend", "custom-ui", "--custom-ui-state", a.dataFile(stateFile),
+		"--metrics-out", a.dataFile("logs/studio/smoke_metrics.jsonl"), "--metrics-every-steps", "64",
 	}
 	return a.runManaged("Smoke Test Run", append([]string{a.pythonOrFallback()}, args...))
 }
@@ -259,12 +265,12 @@ func (a *App) Stop() error {
 
 func (a *App) OpenFolder() error {
 	if runtime.GOOS == "windows" {
-		return exec.Command("explorer", a.repoRoot).Start()
+		return exec.Command("explorer", a.workDir).Start()
 	}
 	if runtime.GOOS == "darwin" {
-		return exec.Command("open", a.repoRoot).Start()
+		return exec.Command("open", a.workDir).Start()
 	}
-	return exec.Command("xdg-open", a.repoRoot).Start()
+	return exec.Command("xdg-open", a.workDir).Start()
 }
 
 func (a *App) OpenAdvantageScope() error {
@@ -288,7 +294,7 @@ func (a *App) EvaluateArtifact(path string) error {
 	if path == "" {
 		return errors.New("select a model first")
 	}
-	return a.runPython("Evaluate Model", "scripts/evaluate_model.py", "--model", path)
+	return a.runPython("Evaluate Model", "scripts/evaluate_model.py", "--model", a.dataFile(path))
 }
 
 func (a *App) ReplayArtifact(path string) error {
@@ -303,12 +309,12 @@ func (a *App) ReplayArtifact(path string) error {
 	return a.runPython(
 		"Run Model in Field",
 		"scripts/run_trained_model.py",
-		"--model", path,
+		"--model", a.dataFile(path),
 		"--fixed-start",
 		"--loop",
 		"--speed", "2.0",
 		"--visualization-backend", "custom-ui",
-		"--custom-ui-state", stateFile,
+		"--custom-ui-state", a.dataFile(stateFile),
 	)
 }
 
@@ -325,30 +331,30 @@ func (a *App) trainingArgs(config TrainConfig, smoke bool) []string {
 	}
 	args := []string{
 		"--timesteps", fallback(config.Timesteps, "100000"),
-		"--model-out", fallback(config.ModelOut, defaultModel),
+		"--model-out", a.dataFile(fallback(config.ModelOut, defaultModel)),
 		"--device", fallback(config.Device, "cuda"),
 		"--robot-profile", fallback(config.RobotProfile, "2025-robot"),
 		"--n-envs", fallback(config.NEnvs, "8"),
 		"--n-steps", fallback(config.NSteps, "512"),
 		"--batch-size", fallback(config.BatchSize, "1024"),
 		"--learning-rate", fallback(config.LearningRate, "0.0003"),
-		"--checkpoint-dir", "models/checkpoints",
+		"--checkpoint-dir", a.dataFile("models/checkpoints"),
 		"--checkpoint-every-steps", fallback(config.CheckpointEvery, "10000"),
 		"--keep-checkpoints", "2",
 		"--visualization-backend", backend,
 		"--advantage-port", "5810",
 		"--custom-ui-port", "8775",
-		"--custom-ui-state", stateFile,
+		"--custom-ui-state", a.dataFile(stateFile),
 		"--viz-every-steps", "512",
 		"--viz-preview-steps", "25",
-		"--metrics-out", metricsFile,
+		"--metrics-out", a.dataFile(metricsFile),
 		"--metrics-every-steps", "512",
 		"--eval-checkpoints",
 		"--eval-episodes", "5",
-		"--best-model-out", defaultBest,
+		"--best-model-out", a.dataFile(defaultBest),
 	}
 	if resume := strings.TrimSpace(config.ResumeFrom); resume != "" {
-		args = append(args, "--resume-from", resume)
+		args = append(args, "--resume-from", a.dataFile(resume))
 	}
 	if !config.Pretrain {
 		args = append(args, "--skip-heuristic-pretrain")
@@ -472,7 +478,7 @@ func hideConsoleWindow(cmd *exec.Cmd) {
 }
 
 func (a *App) finishProcess(code int, message string) {
-	python, pyErr := findPython(a.repoRoot)
+	python, pyErr := findPython(a.repoRoot, a.workDir)
 	a.mu.Lock()
 	a.running = false
 	a.current = ""
@@ -496,7 +502,7 @@ func (a *App) metricsCached() []MetricRow {
 	}
 	a.mu.Unlock()
 
-	metrics := loadMetrics(filepath.Join(a.repoRoot, metricsFile))
+	metrics := loadMetrics(a.dataFile(metricsFile))
 	a.mu.Lock()
 	a.metricsCache = append([]MetricRow(nil), metrics...)
 	a.metricsAt = time.Now()
@@ -513,7 +519,7 @@ func (a *App) artifactsCached() []ArtifactRow {
 	}
 	a.mu.Unlock()
 
-	artifacts := scanArtifacts(a.repoRoot)
+	artifacts := scanArtifacts(a.workDir)
 	a.mu.Lock()
 	a.artifactsCache = append([]ArtifactRow(nil), artifacts...)
 	a.artifactsAt = time.Now()
@@ -529,7 +535,7 @@ func (a *App) ensureTrainingReady() error {
 	if len(missing) == 0 {
 		return nil
 	}
-	venvPython := filepath.Join(a.repoRoot, ".venv", "Scripts", "python.exe")
+	venvPython := filepath.Join(a.workDir, ".venv", "Scripts", "python.exe")
 	if !fileExists(venvPython) {
 		return fmt.Errorf("training environment is not set up. Click Setup + Deps")
 	}
@@ -573,6 +579,13 @@ func (a *App) missingTrainingPackages() []string {
 		return nil
 	}
 	return strings.Split(text, ",")
+}
+
+func (a *App) dataFile(path string) string {
+	if path == "" || filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(a.workDir, path)
 }
 
 func streamLines(wg *sync.WaitGroup, reader io.Reader, appendLog func(string)) {

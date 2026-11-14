@@ -1,5 +1,5 @@
 #define MyAppName "Reefscape RL"
-#define MyAppVersion "1.3.0"
+#define MyAppVersion "1.3.1"
 #define MyAppPublisher "Synapse contributors"
 #define MyAppExeName "ReefscapeRL.exe"
 
@@ -11,6 +11,8 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\Reefscape RL
 DefaultGroupName=Reefscape RL
 DisableProgramGroupPage=yes
+PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\builds
 OutputBaseFilename=ReefscapeRL-Setup
 Compression=lzma
@@ -18,8 +20,11 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-VersionInfoVersion=1.3.0.0
-VersionInfoProductVersion=1.3.0.0
+VersionInfoVersion=1.3.1.0
+VersionInfoProductVersion=1.3.1.0
+
+[Dirs]
+Name: "{app}"; Permissions: users-modify
 
 [Files]
 Source: "..\builds\ReefscapeRL\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

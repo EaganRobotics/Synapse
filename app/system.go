@@ -43,7 +43,37 @@ func walkForFile(start string, name string) (string, bool) {
 	}
 }
 
-func findPython(repoRoot string) (string, error) {
+func resolveWorkspace(repoRoot string) string {
+	if directoryWritable(repoRoot) {
+		return repoRoot
+	}
+	base := os.Getenv("LOCALAPPDATA")
+	if base == "" {
+		if home, err := os.UserHomeDir(); err == nil {
+			base = filepath.Join(home, "AppData", "Local")
+		}
+	}
+	if base == "" {
+		return repoRoot
+	}
+	workspace := filepath.Join(base, "Reefscape RL")
+	if err := os.MkdirAll(workspace, 0o755); err != nil {
+		return repoRoot
+	}
+	return workspace
+}
+
+func directoryWritable(dir string) bool {
+	file, err := os.CreateTemp(dir, ".reefscape-write-*")
+	if err != nil {
+		return false
+	}
+	name := file.Name()
+	_ = file.Close()
+	return os.Remove(name) == nil
+}
+
+func findPython(repoRoot string, workspace string) (string, error) {
 	if configured := strings.TrimSpace(os.Getenv("REEFSCAPE_PYTHON")); configured != "" {
 		if fileExists(configured) {
 			return configured, nil
@@ -51,6 +81,8 @@ func findPython(repoRoot string) (string, error) {
 		return "", fmt.Errorf("REEFSCAPE_PYTHON points to missing file: %s", configured)
 	}
 	candidates := []string{
+		filepath.Join(workspace, ".venv", "Scripts", "python.exe"),
+		filepath.Join(workspace, ".venv", "bin", "python"),
 		filepath.Join(repoRoot, ".venv", "Scripts", "python.exe"),
 		filepath.Join(repoRoot, ".venv", "bin", "python"),
 		filepath.Join(repoRoot, ".python", "python.exe"),
@@ -69,19 +101,24 @@ func findPython(repoRoot string) (string, error) {
 	return "", errors.New("run setup, install Python, or set REEFSCAPE_PYTHON")
 }
 
-func setupVenvArgs(repoRoot string) []string {
+func setupVenvArgs(repoRoot string, workspace string) []string {
+	venvPath := filepath.Join(workspace, ".venv")
+	script := filepath.Join(repoRoot, "scripts", "setup_venv.ps1")
 	packagedPython := filepath.Join(repoRoot, ".python", "python.exe")
 	if runtime.GOOS != "windows" {
 		packagedPython = filepath.Join(repoRoot, ".python", "bin", "python")
 	}
 	if fileExists(packagedPython) {
-		return powershellArgs(filepath.Join(repoRoot, "scripts", "setup_venv.ps1"), "-Python", packagedPython, "-SkipRequirements", "-FastAppInstall")
+		return powershellArgs(script, "-Python", packagedPython, "-VenvPath", venvPath, "-SkipRequirements", "-FastAppInstall")
 	}
-	return powershellArgs(filepath.Join(repoRoot, "scripts", "setup_venv.ps1"), "-SkipRequirements")
+	return powershellArgs(script, "-VenvPath", venvPath, "-SkipRequirements")
 }
 
-func installTrainingDepsArgs(repoRoot string) []string {
-	return powershellArgs(filepath.Join(repoRoot, "scripts", "install_training_deps.ps1"))
+func installTrainingDepsArgs(repoRoot string, workspace string) []string {
+	return powershellArgs(
+		filepath.Join(repoRoot, "scripts", "install_training_deps.ps1"),
+		"-VenvPath", filepath.Join(workspace, ".venv"),
+	)
 }
 
 func powershellArgs(script string, extra ...string) []string {
