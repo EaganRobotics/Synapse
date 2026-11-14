@@ -156,6 +156,7 @@ def copy_python_runtime(app_dir: Path) -> None:
             "include",
             "libs",
             "share",
+            "Scripts",
             "site-packages",
             "tcl",
             "test",
