@@ -27,18 +27,20 @@ The normal install is the Windows installer from the release:
 1. Download `ReefscapeRL-Setup.exe` from the latest release.
 2. Run it.
 3. Open `Reefscape RL` from the Start Menu.
-4. In the app, click `Setup + Deps` the first time you use it.
-5. Click `Doctor` to make sure Python/CUDA/dependencies are good.
-6. Use `Train`, `Field`, `Models`, and `Logs` from the sidebar.
+4. Click `Doctor` to make sure the bundled Python/CUDA runtime is good.
+5. Use `Train`, `Field`, `Models`, and `Logs` from the sidebar.
 
 If you do not want to install it, use the portable build:
 
 1. Download `ReefscapeRL-portable.zip`.
 2. Extract it somewhere normal, like `Documents` or `Desktop`.
 3. Run `ReefscapeRL.exe` inside the extracted folder.
-4. Run `Setup + Deps` once from inside the app.
 
 Do not run the exe from inside the zip file. Extract it first.
+
+Both release formats include the Python interpreter and the pinned training
+dependencies (including PyTorch/CUDA). No system Python, `pip`, virtual
+environment, or first-time dependency download is required.
 
 ## Training
 

@@ -183,6 +183,12 @@ func (a *App) GetLiveState() LiveStateResponse {
 func (a *App) RunAction(id string) error {
 	switch id {
 	case "setup_deps":
+		if packagedPython := filepath.Join(a.repoRoot, ".python", "python.exe"); fileExists(packagedPython) {
+			return a.runManaged(
+				"Verify Bundled Python Runtime",
+				[]string{packagedPython, "-c", "import gymnasium, numpy, pygame, robotpy, stable_baselines3, torch; print('Bundled Python and training dependencies are ready.')"},
+			)
+		}
 		return a.runManagedSequence(
 			"Setup + Install Training Dependencies",
 			[][]string{setupVenvArgs(a.repoRoot, a.workDir), installTrainingDepsArgs(a.repoRoot, a.workDir)},

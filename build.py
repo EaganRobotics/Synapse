@@ -130,6 +130,15 @@ def copy_app_payload(app_dir: Path) -> None:
 
 
 def copy_python_runtime(app_dir: Path) -> None:
+    """Bundle a relocatable Python runtime and every runtime dependency.
+
+    The desktop application runs Python scripts after installation, so a bare
+    launcher executable is not sufficient.  Keep the interpreter next to the
+    application and copy the site-packages from the build environment into its
+    standard location.  This makes the installer/portable archive self
+    contained: it never creates a venv or downloads packages on an end-user's
+    computer.
+    """
     source = Path(sys.base_prefix).resolve()
     python_exe = source / ("python.exe" if os.name == "nt" else "bin/python")
     if not python_exe.exists():
@@ -157,12 +166,46 @@ def copy_python_runtime(app_dir: Path) -> None:
             "libs",
             "share",
             "Scripts",
+            # Copy dependencies from the active build environment below.  The
+            # base interpreter may have an unrelated global site-packages.
             "site-packages",
             "tcl",
             "test",
             "testing",
             "tests",
         ),
+    )
+
+    site_packages = Path(sys.prefix) / "Lib" / "site-packages"
+    if not site_packages.exists():
+        raise SystemExit(
+            f"Build Python environment has no site-packages directory: {site_packages}"
+        )
+
+    required_modules = (
+        "numpy",
+        "gymnasium",
+        "stable_baselines3",
+        "torch",
+        "robotpy",
+        "pygame",
+    )
+    probe = subprocess.run(
+        [sys.executable, "-c", "; ".join(f"import {name}" for name in required_modules)],
+        check=False,
+        text=True,
+    )
+    if probe.returncode != 0:
+        raise SystemExit(
+            "The build environment is missing a required runtime dependency. "
+            "Run scripts/setup_venv.ps1 and install requirements.txt before building."
+        )
+
+    print(f"Bundling Python packages: {site_packages}")
+    shutil.copytree(
+        site_packages,
+        destination / "Lib" / "site-packages",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pdb", "tests", "test"),
     )
 
 
@@ -173,17 +216,22 @@ def write_launcher_files(app_dir: Path) -> None:
     )
     (app_dir / "Setup Python Environment.bat").write_text(
         '@echo off\r\ncd /d "%~dp0"\r\n'
-        'powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\setup_venv.ps1 -Python ".python\\python.exe" -SkipRequirements -FastAppInstall\r\n',
+        '".python\\python.exe" -c "import gymnasium, numpy, pygame, robotpy, stable_baselines3, torch; print(\'Bundled Python runtime is ready.\')"\r\n'
+        "pause\r\n",
         encoding="utf-8",
     )
     (app_dir / "Complete First-Time Setup.bat").write_text(
         '@echo off\r\ncd /d "%~dp0"\r\n'
-        'powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\install_app_setup.ps1 -Python ".python\\python.exe" -InstallTrainingDependencies\r\n',
+        "echo No first-time setup is required. Reefscape RL includes Python and its training dependencies.\r\n"
+        '".python\\python.exe" -c "import gymnasium, numpy, pygame, robotpy, stable_baselines3, torch; print(\'Bundled runtime verified.\')"\r\n'
+        "pause\r\n",
         encoding="utf-8",
     )
     (app_dir / "Install Training Dependencies.bat").write_text(
         '@echo off\r\ncd /d "%~dp0"\r\n'
-        "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\install_training_deps.ps1\r\n",
+        "echo Training dependencies are already included in this build.\r\n"
+        '".python\\python.exe" -c "import gymnasium, numpy, pygame, robotpy, stable_baselines3, torch; print(\'Bundled runtime verified.\')"\r\n'
+        "pause\r\n",
         encoding="utf-8",
     )
 

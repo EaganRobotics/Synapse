@@ -144,7 +144,7 @@ function App() {
       </nav>
 
       <div className="toolbar">
-        <button className="command" type="button" disabled={running} onClick={() => run(() => RunAction("setup_deps"))}>Setup + Deps</button>
+        <button className="command" type="button" disabled={running} onClick={() => run(() => RunAction("setup_deps"))}>Verify Bundled Runtime</button>
         <button className="command" type="button" disabled={running} onClick={() => run(() => RunAction("doctor"))}>Doctor</button>
         <button className="command" type="button" onClick={() => run(OpenFolder)}>Project Folder</button>
         <button className="command" type="button" disabled={running} onClick={() => run(OpenAdvantageScope)}>Host AdvantageScope</button>
@@ -155,7 +155,7 @@ function App() {
         {error && <div className="notice error">{error}</div>}
         {state?.missingTraining?.length > 0 && (
           <div className="notice warn">
-            Training deps missing: {state.missingTraining.join(", ")}. Run Setup + Deps and wait for it to finish.
+            Training deps missing: {state.missingTraining.join(", ")}. Verify the bundled runtime, then reinstall if the check fails.
           </div>
         )}
 

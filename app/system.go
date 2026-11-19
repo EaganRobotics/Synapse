@@ -81,12 +81,14 @@ func findPython(repoRoot string, workspace string) (string, error) {
 		return "", fmt.Errorf("REEFSCAPE_PYTHON points to missing file: %s", configured)
 	}
 	candidates := []string{
+		// Release builds ship this interpreter and all of its runtime packages.
+		// Prefer it over any incomplete user-created virtual environment.
+		filepath.Join(repoRoot, ".python", "python.exe"),
+		filepath.Join(repoRoot, ".python", "bin", "python"),
 		filepath.Join(workspace, ".venv", "Scripts", "python.exe"),
 		filepath.Join(workspace, ".venv", "bin", "python"),
 		filepath.Join(repoRoot, ".venv", "Scripts", "python.exe"),
 		filepath.Join(repoRoot, ".venv", "bin", "python"),
-		filepath.Join(repoRoot, ".python", "python.exe"),
-		filepath.Join(repoRoot, ".python", "bin", "python"),
 	}
 	for _, candidate := range candidates {
 		if fileExists(candidate) {
@@ -102,6 +104,8 @@ func findPython(repoRoot string, workspace string) (string, error) {
 }
 
 func setupVenvArgs(repoRoot string, workspace string) []string {
+	// A release includes a complete interpreter and training dependencies.  The
+	// action is retained for source checkouts, where no bundled runtime exists.
 	venvPath := filepath.Join(workspace, ".venv")
 	script := filepath.Join(repoRoot, "scripts", "setup_venv.ps1")
 	packagedPython := filepath.Join(repoRoot, ".python", "python.exe")
